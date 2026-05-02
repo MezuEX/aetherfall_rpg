@@ -3,3 +3,7 @@ savegame.json
 savegame.json
 /target/
 /target/
+
+# Save files
+save*.json
+save_battle_*.json
