@@ -5,7 +5,7 @@
 
 **Aetherfall RPG** adalah game *turn-based role-playing game* yang berjalan sepenuhnya di terminal, ditulis dalam bahasa **Rust**.  
 Kamu berperan sebagai **Weaver**, satu-satunya makhluk yang bisa menyatukan energi elemen yang tercerai-berai setelah peristiwa **The Shattering**.  
-Kumpulkan 12 karakter unik, bina hubungan (affinity), eksplorasi 4 chapter cerita, dan pilih nasib dunia di antara 3 ending yang berbeda.
+Kumpulkan 12 karakter unik, bina hubungan (affinity), eksplorasi 4 chapter cerita, dan pilih nasib dunia di antara 4 ending yang berbeda.
 
 ---
 
@@ -36,10 +36,10 @@ Kamu adalah **Weaver**, manusia langka yang bisa:
 
 ### 🎬 Ending
 
-1. **Harmony** → Satukan elemen. Dunia stabil tapi rapuh. Karakter yang berkonflik berdamai.
-2. **Void** → Hapus semua elemen. Damai abadi, namun hampa dan sepi.
+1. **Harmony** → Satukan elemen. Dunia stabil tapi rapuh.
+2. **Void** → Hapus semua elemen. Damai abadi, namun hampa.
 3. **Chaos** → Biarkan kekacauan. Dunia liar, petualangan tak pernah usai.
-4. **Secret Ending** (syarat: affinity semua karakter maksimal) → Weaver mengorbankan diri, menjadi Core Element baru. Dunia stabil tanpa reset.
+4. **Secret Ending** → (Syarat: affinity total ≥ 200) Weaver menjadi Core Element baru.
 
 ---
 
@@ -47,44 +47,33 @@ Kamu adalah **Weaver**, manusia langka yang bisa:
 
 ### Roster Awal (Chapter 1)
 
-| Nama   | Elemen  | Role      | Deskripsi Singkat |
-|--------|---------|-----------|-------------------|
-| Aiden  | 🔥 Api  | Penyerang  | Pemuda impulsif yang mewakili *Rage*. Burst damage tinggi. |
-| Lyra   | 💧 Air  | Penyembuh  | Penuh empati, mewakili *Grief*. Heal dan cleanser. |
-| Kael   | 🪨 Tanah| Tank       | Stoik, mewakili *Stability*. Defense tinggi, pelindung tim. |
-| Mira   | 🍃 Angin | Support   | Ceria, mewakili *Freedom*. Speed buff dan debuff musuh. |
+| Nama   | Elemen  | Role      | Deskripsi |
+|--------|---------|-----------|-----------|
+| Aiden  | 🔥 Api  | Penyerang  | Pemarah, burst damage tinggi |
+| Lyra   | 💧 Air  | Penyembuh  | Empati, heal dan cleanser |
+| Kael   | 🪨 Tanah| Tank       | Stoik, defense tinggi |
+| Mira   | 🍃 Angin | Support   | Ceria, speed buffer |
 
 ### Karakter Unlock (Chapter 2–4)
 
-| Nama   | Elemen  | Role      | Cara Unlock |
-|--------|---------|-----------|-------------|
-| Elara  | ✨ Cahaya | Penyerang | Chapter 2, setelah membantu desa. Mewakili *Hope*. |
-| Vex    | 🌑 Gelap | Penyerang | Chapter 2, memutuskan bergabung setelah kalah. Mewakili *Despair*. |
-| Orion  | ✨ Cahaya | Support   | Chapter 3, pengendali waktu. |
-| Nyx    | 🌑 Gelap | Penyerang | Chapter 3, chaos lover. |
-| Ignis  | 🔥 Api  | Penyerang | Chapter 3, berserker. |
-| Nereid | 💧 Air  | Penyembuh  | Chapter 3, healer murni. |
-| Zeph   | 🍃 Angin | Penyerang | Chapter 4, dodge specialist. |
-| Terra  | 🪨 Tanah| Tank       | Chapter 4, counter attack tank. |
-| Solis  | ✨ Cahaya | Support   | Chapter 4, buffer tim. |
+Elara (✨ Cahaya), Vex (🌑 Gelap), Orion (⏱️ Waktu), Nyx (🌀 Chaos), Ignis (🔥), Nereid (💧), Zeph (🍃), Terra (🪨), Solis (✨), dan lainnya.
 
-Total **12 karakter**; tim aktif maksimal **4**.
+**Total 12 karakter**, tim aktif maksimal **4**.
 
 ---
 
 ## ⚔️ Sistem Pertarungan
 
 ### Turn Order
-- Berdasarkan **speed** setiap karakter (diurutkan ulang tiap turn)
-- Karakter dengan speed lebih tinggi bergerak lebih dulu
+- Berdasarkan **speed** (diurutkan ulang tiap turn)
 
 ### Aksi dalam Giliran
-1. **Serangan Dasar** → damage fisik + **+10 Energy**
-2. **Skill** → damage/efek spesial, butuh Energy (10–50), bisa healing atau debuff
+1. **Serangan Dasar** → damage + generate **10 Energy**
+2. **Skill** → damage/efek spesial, butuh Energy (0–50)
 3. **Ultimate** → skill terkuat, butuh **100 Energy**
-4. **Bertahan** → mengurangi damage yang diterima sebesar 50% untuk 1 giliran
+4. **Bertahan** → mengurangi damage 50% untuk 1 giliran
 
-### Sistem Elemen (Keuntungan & Kelemahan)
+### Sistem Elemen
 
 | Elemen | Kuat Terhadap | Lemah Terhadap |
 |--------|---------------|----------------|
@@ -95,36 +84,34 @@ Total **12 karakter**; tim aktif maksimal **4**.
 | ✨ Cahaya| 🌑 Gelap      | —               |
 | 🌑 Gelap| ✨ Cahaya     | —               |
 
-Damage multiplier: **1.5x** jika kuat, **0.5x** jika lemah.
-
-### Break System
-- Setiap musuh punya **Toughness**
-- Serangan dengan elemen kuat mengurangi Toughness
-- Jika Toughness habis → **BREAK** → musuh **stun 1 turn** + bonus damage
+Multiplier: **1.5x** jika kuat, **0.5x** jika lemah.
 
 ### Energy & Ultimate
-- Setiap serangan dasar memberi **+10 Energy** (max 100)
-- Skill mengonsumsi Energy (sesuai biaya)
-- Ultimate menghabiskan 100 Energy
-- Energy bertahan lintas giliran
+- Serangan dasar: +10 Energy
+- Skill mengonsumsi Energy sesuai biaya
+- Ultimate: 100 Energy
+
+### Break System
+- Serangan elemen kuat mengurangi Toughness
+- Jika habis → **BREAK** → stun 1 turn
 
 ### Synergy (Bonus Tim)
-- **2 elemen sama** dalam tim → +10 ATK untuk semua karakter elemen tersebut
-- **2 Support** dalam tim → semua karakter **regen +5 HP** setiap turn
+- **2 elemen sama** → +10 ATK
+- **2 Support** → regen +5 HP/turn
 - **2 Healer** → regen tambahan +3 HP
 
 ### Affinity (Hubungan Karakter)
-- Bertambah melalui pilihan dialog di cerita
-- **Affinity ≥ 30** → bonus ATK +5 untuk kedua karakter dalam battle
-- Affinity tinggi juga membuka **secret ending**
+- Bertambah lewat pilihan dialog
+- Affinity ≥ 30 → bonus ATK +5 di battle
+- Affinity tinggi membuka **secret ending**
 
 ### Status Effect
-| Efek      | Durasi | Efek |
-|-----------|--------|------|
-| 🔥 Burn   | 2 turn | Damage per turn (5–10% max HP) |
-| ❄️ Freeze | 1 turn | Kehilangan giliran |
-| ⚡ Buff Atk| 3 turn | Meningkatkan ATK |
-| 🛡️ Debuff Def| 3 turn | Menurunkan DEF |
+| Efek      | Efek |
+|-----------|------|
+| 🔥 Burn   | Damage per turn |
+| ❄️ Freeze | Kehilangan giliran |
+| ⚡ Buff Atk| ATK meningkat |
+| 🛡️ Debuff Def| DEF menurun |
 
 ---
 
@@ -132,9 +119,9 @@ Damage multiplier: **1.5x** jika kuat, **0.5x** jika lemah.
 
 ### Persyaratan
 - **Termux** (Android) atau **Linux/macOS/Windows (WSL2)**
-- **Rust** dan **Cargo** (minimal versi 1.70)
+- **Rust** dan **Cargo**
 
-### 1. Install Rust (jika belum)
+### 1. Install Rust
 
 **Termux:**
 ```bash
@@ -149,12 +136,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source ~/.cargo/env
 ```
 
-Windows (WSL2): ikuti langkah Linux di dalam WSL.
-
 2. Clone repository
 
 ```bash
-git clone https://github.com/username/aetherfall_rpg.git
+git clone https://github.com/MezuEX/aetherfall_rpg.git
 cd aetherfall_rpg
 ```
 
@@ -165,93 +150,116 @@ cargo build --release
 cargo run
 ```
 
-Catatan: Pertama kali build akan mengunduh dependency (rand, serde). Butuh koneksi internet.
+4. Save & Load
 
-4. Menyimpan & Memuat Game
-
-· Save otomatis setelah setiap chapter (file savegame.json)
+· Save otomatis setelah setiap chapter
+· Save di battle dengan perintah .sv (opsi 0)
 · Load dari menu utama (opsi 2)
-· Hapus save untuk mulai dari awal: rm savegame.json
+· 4 slot save (max)
 
 ---
 
-🕹️ Cara Bermain (Panduan Cepat)
+🕹️ Cara Bermain
 
-Menu Utama
+Menu Utama (6 opsi + keluar)
 
 ```
 1. Mulai Petualangan Baru
 2. Load Game
-3. Team Builder (coming soon)
-4. Affinity Status (lihat hubungan karakter)
-5. Keluar
+3. Team Builder
+4. Affinity Status
+5. Equipment
+6. Sinopsis Cerita
+0. Keluar
 ```
 
-Dalam Battle
+Battle
 
-1. Pilih aksi (1–4)
-2. Jika pilih Skill atau Ultimate, pilih target:
-   · Skill Heal → target sekutu (bisa diri sendiri)
-   · Skill Damage / Debuff → target musuh
-3. Serangan dasar dan skill menghasilkan Energy
-4. Gunakan Ultimate (butuh 100 Energy) untuk serangan pamungkas
+```
+Pilih aksi [0-4]:
+1. ⚔️ Serangan Dasar
+2. ✨ Skill
+3. 💥 Ultimate
+4. 🛡️ Bertahan
+0. 💾 Save Game (.sv)
+```
 
-Tips Kemenangan
+Skill memiliki label:
 
-· Manfaatkan elemen untuk damage ekstra
-· Fokus pada satu musuh untuk mengurangi jumlah lawan cepat
-· Gunakan defend saat HP rendah
-· Jaga Energy untuk ultimate di saat kritis
-· Bentuk tim dengan sinergi (2 elemen sama atau 2 support)
-· Tingkatkan affinity untuk bonus ATK
+· [HEAL] → menyembuhkan sekutu
+· [DAMAGE] → damage biasa
+· [DAMAGE+BURN] → damage + efek burn
+· [DEBUFF] → menurunkan DEF musuh
+· [BUFF] → meningkatkan ATK sendiri
+
+Tips
+
+· Manfaatkan kelebihan elemen
+· Kumpulkan Energy sebelum ultimate
+· Defend saat HP rendah
+· Bentuk tim dengan synergy
+· Tingkatkan affinity untuk bonus dan secret ending
 
 ---
 
-📁 Struktur Proyek (Untuk Developer)
+📁 Struktur Proyek
 
 ```
 src/
-├── core/          # Game state, config, save/load, game loop
-├── battle/        # Battle engine, turn manager, AI musuh
+├── core/          # Game state, config, save/load
+├── battle/        # Battle engine, turn manager, AI
 ├── entity/        # Character, skill, effect, element, role
-├── systems/       # Status effect, buff, synergy
+├── systems/       # Status, buff, synergy, team builder, equipment
 ├── story/         # Chapter 1-4, final battle, ending, dialogue
-├── data/          # Database karakter & musuh (12 karakter + 7 boss)
-├── ui/            # Menu, battle UI, text formatting, affinity panel
-└── utils/         # Input handler, random utilities
+├── data/          # Database karakter & musuh
+├── ui/            # Menu, battle UI, text formatting
+└── utils/         # Input, random, clear screen
 ```
 
 ---
 
 🚧 Fitur yang Akan Datang
 
-· Team Builder (pilih 4 karakter dari 12 yang sudah di-unlock)
-· Equipment system (senjata, armor, artifact)
-· Boss phase (AI berubah saat HP < 50%)
-· Relationship events (cutscene khusus affinity tinggi)
-· More endings (based on choices during story)
+· Team Builder (pilih 4 dari 12 karakter) ✅
+· Equipment system (weapon, armor, artifact) ✅
+· Boss phase (AI berubah saat HP < 50%) ✅
+· Relationship events (cutscene affinity tinggi) ✅
+· More endings (based on choices) ✅
+· Save di battle & load ke turn yang sama ✅
 
 ---
 
-🤝 Kontribusi
+🎮 Fitur Lengkap
 
-Pull request sangat diterima. Area yang bisa dikontribusi:
-
-· Menambah karakter baru
-· Menyeimbangkan damage formula
-· Meningkatkan AI musuh
-· Menambah item (potion, elixir)
-· Bug fixing
-
-Pastikan cargo build dan cargo run masih berjalan tanpa error.
+Fitur Status
+Turn-based battle 4 vs 4 ✅
+Speed-based turn order ✅
+6 elemen dengan kelebihan/kelemahan ✅
+Energy system (basic +10, ultimate 100) ✅
+Break system (toughness + stun) ✅
+Status effects (Burn, Freeze, Buff, Debuff) ✅
+Synergy system ✅
+Affinity system ✅
+Equipment system ✅
+Team builder ✅
+Boss phase ✅
+Relationship events ✅
+Branching narrative ✅
+4 chapter + final battle ✅
+4 endings + secret ending ✅
+Save/Load 4 slot ✅
+Save di battle ✅
+Typewriter effect + skip Enter ✅
+Clear screen setiap scene ✅
+UI warna dan border dinamis ✅
 
 ---
 
 📜 Lisensi
 
 MIT License — bebas digunakan, dimodifikasi, dan didistribusikan.
-Dibuat dengan ❤️ oleh [Nama Anda].
-Terinspirasi dari Honkai: Star Rail, Final Fantasy, dan classic JRPG.
+
+Dibuat dengan ❤️ oleh MezuEX
 
 ---
 
