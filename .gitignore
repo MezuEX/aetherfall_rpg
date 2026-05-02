@@ -7,3 +7,7 @@ savegame.json
 # Save files
 save*.json
 save_battle_*.json
+
+# Save files
+save*.json
+save_battle_*.json
