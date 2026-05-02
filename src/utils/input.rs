@@ -12,16 +12,21 @@ pub fn get_usize(prompt: &str, max: usize) -> usize {
     loop {
         let input = get_input(prompt);
         if let Ok(num) = input.parse::<usize>() {
-            if num >= 1 && num <= max {
+            if num <= max {
                 return num;
             }
         }
-        println!("❌ Masukkan angka antara 1 dan {}", max);
+        println!("❌ Masukkan angka antara 0 dan {}", max);
     }
 }
 
 pub fn wait_for_enter() {
-    println!("Tekan Enter untuk melanjutkan...");
+    println!("\nTekan Enter untuk melanjutkan...");
+    let mut dummy = String::new();
+    io::stdin().read_line(&mut dummy).unwrap();
+}
+
+pub fn wait_for_enter_simple() {
     let mut dummy = String::new();
     io::stdin().read_line(&mut dummy).unwrap();
 }

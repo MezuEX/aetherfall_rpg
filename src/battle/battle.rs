@@ -1,13 +1,49 @@
 use crate::entity::character::Character;
 use crate::battle::turn::TurnManager;
 use crate::systems::synergy_system::apply_synergy;
-use crate::ui::battle_ui::{display_team_status, battle_header, battle_result};
+use crate::ui::battle_ui::{display_team_status, battle_start_header, battle_result};
 use crate::core::state::GameState;
+use crate::systems::equipment::random_equipment_drop;
+use crate::utils::clear::wait_and_clear;
+use std::cell::RefCell;
+use std::rc::Rc;
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BattleSaveData {
+    pub turn: u32,
+    pub player_team: Vec<Character>,
+    pub enemy_team: Vec<Character>,
+    pub current_character_idx: usize,
+}
+
+thread_local! {
+    static BATTLE_STATE: RefCell<Option<Rc<RefCell<GameState>>>> = RefCell::new(None);
+}
+
+pub fn set_battle_state(state: Rc<RefCell<GameState>>) {
+    BATTLE_STATE.with(|s| {
+        *s.borrow_mut() = Some(state);
+    });
+}
+
+pub fn get_battle_state() -> Option<Rc<RefCell<GameState>>> {
+    BATTLE_STATE.with(|s| {
+        s.borrow().clone()
+    })
+}
+
+pub fn clear_battle_state() {
+    BATTLE_STATE.with(|s| {
+        *s.borrow_mut() = None;
+    });
+}
 
 pub struct Battle {
     pub player_team: Vec<Character>,
     pub enemy_team: Vec<Character>,
-    pub game_state: Option<GameState>,
+    pub game_state: Option<Rc<RefCell<GameState>>>,
+    pub current_turn: u32,
 }
 
 impl Battle {
@@ -16,38 +52,76 @@ impl Battle {
             player_team, 
             enemy_team,
             game_state: None,
+            current_turn: 1,
         }
+    }
+
+    pub fn with_state(mut self, state: Rc<RefCell<GameState>>) -> Self {
+        self.game_state = Some(state.clone());
+        set_battle_state(state);
+        self
     }
 
     pub fn run(&mut self) -> bool {
         apply_synergy(&mut self.player_team);
         
-        if let Some(state) = &self.game_state {
-            Self::apply_affinity_bonus(&mut self.player_team, state);
+        if let Some(ref state_rc) = self.game_state {
+            let state = state_rc.borrow();
+            Self::apply_affinity_bonus(&mut self.player_team, &state);
         }
         
-        println!("\n{}═{} BATTLE START {}═{}{}", 
-            crate::core::config::COLOR_YELLOW,
-            "═".repeat(15), 
-            "═".repeat(15), 
-            "═".repeat(15),
-            crate::core::config::COLOR_RESET);
+        battle_start_header();
+        display_team_status(&self.player_team, "TIM PEMAIN", crate::core::config::COLOR_CYAN);
+        display_team_status(&self.enemy_team, "MUSUH", crate::core::config::COLOR_RED);
+        wait_and_clear();
         
-        let mut turn = 1;
         while Self::is_team_alive(&self.player_team) && Self::is_team_alive(&self.enemy_team) {
-            battle_header(turn);
-            display_team_status(&self.player_team, "TIM PEMAIN", crate::core::config::COLOR_CYAN);
-            display_team_status(&self.enemy_team, "MUSUH", crate::core::config::COLOR_RED);
+            let battle_ended = TurnManager::run_turn(&mut self.player_team, &mut self.enemy_team, self.current_turn);
             
-            let win = TurnManager::run_turn(&mut self.player_team, &mut self.enemy_team);
-            if win {
-                battle_result(true);
-                return true;
+            if battle_ended {
+                if Self::is_team_alive(&self.player_team) && !Self::is_team_alive(&self.enemy_team) {
+                    battle_result(true);
+                    
+                    let mut rng = rand::thread_rng();
+                    if let Some(equip) = random_equipment_drop(&mut rng) {
+                        println!("\n{}🎁 Kamu mendapatkan equipment: {} (+{} ATK, +{} DEF){}", 
+                            crate::core::config::COLOR_GREEN, 
+                            equip.name, 
+                            equip.atk_bonus, 
+                            equip.def_bonus, 
+                            crate::core::config::COLOR_RESET);
+                        if let Some(ref mut state_rc) = self.game_state {
+                            let mut state = state_rc.borrow_mut();
+                            if let Some(first_alive) = self.player_team.iter_mut().find(|c| c.is_alive()) {
+                                state.equip_item(&first_alive.name, equip);
+                            }
+                        }
+                    }
+                    
+                    wait_and_clear();
+                    clear_battle_state();
+                    return true;
+                } else {
+                    battle_result(false);
+                    wait_and_clear();
+                    clear_battle_state();
+                    return false;
+                }
             }
-            turn += 1;
+            self.current_turn += 1;
         }
-        battle_result(false);
-        false
+        
+        if Self::is_team_alive(&self.player_team) && !Self::is_team_alive(&self.enemy_team) {
+            battle_result(true);
+            wait_and_clear();
+            clear_battle_state();
+            true
+        } else {
+            battle_result(false);
+            wait_and_clear();
+            clear_battle_state();
+            false
+        }
     }
     
     fn apply_affinity_bonus(team: &mut [Character], state: &GameState) {
@@ -58,7 +132,10 @@ impl Battle {
                     team[i].atk += 5;
                     team[j].atk += 5;
                     println!("{}❤️ Bonus affinity! ATK {} dan {} +5 karena hubungan dekat!{}", 
-                        crate::core::config::COLOR_MAGENTA, team[i].name, team[j].name, crate::core::config::COLOR_RESET);
+                        crate::core::config::COLOR_MAGENTA, 
+                        team[i].name, 
+                        team[j].name, 
+                        crate::core::config::COLOR_RESET);
                 }
             }
         }
